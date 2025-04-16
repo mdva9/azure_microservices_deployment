@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  service-java:
+    image: service-java
+    container_name: service-java
+
+    ports:
+      - "8080:8080"
+    environment:
+      - FLASK_URL=http://service-flask:5000
+    depends_on:
+      - service-flask
+    
+    networks:
+      - flask-network
+
+  
+  service-flask:
+    image: service-python
+    container_name: service-python
+
+    ports:
+      - 5000:5000
+    networks:
+      - flask-network
+  
+networks:
+  flask-network:
+    driver: bridge
