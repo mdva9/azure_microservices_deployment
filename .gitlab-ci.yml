@@ -29,7 +29,7 @@ service-python:
   before_script:
     - cd ./service-python/service-python-main
     - python -m venv venv
-    - source venv/Scripts/Activate
+    - source venv/bin/activate
     - pip install --upgrade pip
     - pip install -r requierments.txt
     
