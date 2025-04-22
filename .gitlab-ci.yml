@@ -9,7 +9,7 @@ service-java:
   image: maven:3.9.9-eclipse-temurin-23-alpine
 
   before_script: 
-    - cd ./service-java 
+    - cd ./service-java/service-java-main
   script:
     - echo "Compilation du projet..."
     - mvn compile
@@ -27,7 +27,7 @@ service-python:
   image: python:3.8
   
   before_script:
-    - cd ./service-python
+    - cd ./service-python/service-python-main
     - python -m venv venv
     - source venv/Scripts/Activate
     - pip install --upgrade pip
