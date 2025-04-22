@@ -1,0 +1,45 @@
+stages:
+  - service-java
+  - service-python
+  
+
+service-java:
+  
+  stage: service-java
+  image: maven:3.9.9-eclipse-temurin-23-alpine
+
+  before_script: 
+    - cd ./service-java 
+  script:
+    - echo "Compilation du projet..."
+    - mvn compile
+    - echo "Exécution des tests"
+    - mvn test
+  artifacts:
+    paths:
+      - target/  # Sauvegarde les fichiers compilés
+    expire_in: 1h
+
+
+service-python:
+  
+  stage: service-python
+  image: python:3.8
+  
+  before_script:
+    - cd ./service-python
+    - python -m venv venv
+    - source venv/Scripts/Activate
+    - pip install --upgrade pip
+    - pip install -r requierments.txt
+    
+  script:
+    - echo "Lancement de l'application"
+    - python app.py
+    - python test_app.py
+    - echo "Exécution des tests"
+  
+  artifacts:
+    paths:
+      - ./service-python/venv/
+    expire_in: 1h
