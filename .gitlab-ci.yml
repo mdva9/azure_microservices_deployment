@@ -17,7 +17,7 @@ service-java:
     - mvn test
   artifacts:
     paths:
-      - target/  # Sauvegarde les fichiers compilés
+      - target/ 
     expire_in: 1h
 
 
