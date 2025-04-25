@@ -2,12 +2,11 @@ stages:
   - service-java
   - service-python
 
-artifacts:
+cache:
   paths:
     - service-java/service-java-main/target/
     - venv/
-  
-  expire_in: 1h
+
   
 
 service-java:
