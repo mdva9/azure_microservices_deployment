@@ -14,16 +14,16 @@ variables:
 
   
 
-# service-java:
+service-java:
   
-#   stage: service-java
-#   image: maven:3.9.9-eclipse-temurin-23-alpine
+  stage: service-java
+  image: maven:3.9.9-eclipse-temurin-23-alpine
 
-#   script:
-#     - echo "Compilation du projet..."
-#     - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
-#     - echo "Exécution des tests"
-#     - mvn test -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
+  script:
+    - echo "Compilation du projet..."
+    - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
+    - echo "Exécution des tests"
+    - mvn test -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
 
    
     
