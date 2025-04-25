@@ -14,31 +14,31 @@ variables:
 
   
 
-service-java:
+# service-java:
   
-  stage: service-java
-  image: maven:3.9.9-eclipse-temurin-23-alpine
+#   stage: service-java
+#   image: maven:3.9.9-eclipse-temurin-23-alpine
 
-  script:
-    - echo "Compilation du projet..."
-    - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
-    - echo "Exécution des tests"
-    - mvn test -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
+#   script:
+#     - echo "Compilation du projet..."
+#     - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
+#     - echo "Exécution des tests"
+#     - mvn test -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
 
    
     
 
-# service-python:
+service-python:
   
-#   stage: service-python
-#   image: python:3.8
-  
-#   before_script:
-#     - python -m venv venv
-#     - source venv/bin/activate
-#     - cd ./service-python/service-python-main
-#     - pip install -r requirements.txt
+  stage: service-python
+  image: python:3.8
+
+  before_script:
+    - python -m venv venv
+    - source venv/bin/activate
+    - cd ./service-python/service-python-main
+    - pip install -r requirements.txt
     
-#   script:
-#     - echo "Exécution des tests"
-#     - python test_app.py
+  script:
+    - echo "Exécution des tests"
+    - python test_app.py
