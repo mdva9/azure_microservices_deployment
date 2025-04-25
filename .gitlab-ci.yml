@@ -9,7 +9,7 @@ cache:
     - venv/
 
 variables:
-  MAVEN_XML_PATH: "services/service-java-main/pom.xml"
+  MAVEN_XML_PATH: "service-java/service-java-main/pom.xml"
   MAVEN_REPOSITORY: "-Dmaven.repo.local=.m2/repository"
 
   
