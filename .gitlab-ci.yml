@@ -1,6 +1,13 @@
 stages:
   - service-java
   - service-python
+
+artifacts:
+  paths:
+    - service-java/service-java-main/target/
+    - venv/
+  
+  expire_in: 1h
   
 
 service-java:
@@ -15,10 +22,8 @@ service-java:
     - mvn compile
     - echo "Exécution des tests"
     - mvn test
-  artifacts:
-    paths:
-      - service-java/service-java-main/target/ 
-    expire_in: 1h
+   
+    
 
 service-python:
   
@@ -34,8 +39,3 @@ service-python:
   script:
     - echo "Exécution des tests"
     - python test_app.py
-  
-  artifacts:
-    paths:
-      - venv/
-    expire_in: 1h
