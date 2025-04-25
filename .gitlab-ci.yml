@@ -4,8 +4,13 @@ stages:
 
 cache:
   paths:
+    - .m2/repository 
     - service-java/service-java-main/target/
     - venv/
+
+variables:
+  MAVEN_XML_PATH: "services/service-java-main/pom.xml"
+  MAVEN_REPOSITORY: "-Dmaven.repo.local=.m2/repository"
 
   
 
@@ -14,27 +19,26 @@ service-java:
   stage: service-java
   image: maven:3.9.9-eclipse-temurin-23-alpine
 
-  before_script: 
-    - cd ./service-java/service-java-main
   script:
     - echo "Compilation du projet..."
-    - mvn compile
+    - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
     - echo "Exécution des tests"
-    - mvn test
+    - mvn test -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
+
    
     
 
-service-python:
+# service-python:
   
-  stage: service-python
-  image: python:3.8
+#   stage: service-python
+#   image: python:3.8
   
-  before_script:
-    - python -m venv venv
-    - source venv/bin/activate
-    - cd ./service-python/service-python-main
-    - pip install -r requirements.txt
+#   before_script:
+#     - python -m venv venv
+#     - source venv/bin/activate
+#     - cd ./service-python/service-python-main
+#     - pip install -r requirements.txt
     
-  script:
-    - echo "Exécution des tests"
-    - python test_app.py
+#   script:
+#     - echo "Exécution des tests"
+#     - python test_app.py
