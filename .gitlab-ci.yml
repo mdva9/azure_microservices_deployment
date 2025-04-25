@@ -17,9 +17,8 @@ service-java:
     - mvn test
   artifacts:
     paths:
-      - target/ 
+      - service-java/service-java-main/target/ 
     expire_in: 1h
-
 
 service-python:
   
@@ -27,11 +26,9 @@ service-python:
   image: python:3.8
   
   before_script:
-    - cd ./service-python/service-python-main
     - python -m venv venv
     - source venv/bin/activate
-    - pip install --upgrade pip
-    - pip install flask
+    - cd ./service-python/service-python-main
     - pip install -r requirements.txt
     
   script:
@@ -40,5 +37,5 @@ service-python:
   
   artifacts:
     paths:
-      - ./service-python/venv/
+      - venv/
     expire_in: 1h
