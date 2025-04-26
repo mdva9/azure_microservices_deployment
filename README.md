@@ -1,6 +1,6 @@
-# README - Commandes Docker pour les Microservices
+# README - Commandes pour le déploiement d'une application à microservices sur Microsoft Azure.
 
-Ce README détaille les commandes utilisées pour la création et l'exécution des conteneurs de microservices Spring Boot et Flask.
+Ce README détaille les commandes utilisées pour le déploiement des microservices Spring Boot et Flask sur Azure.
 
 ## Arborescence du Projet
 
@@ -105,3 +105,52 @@ curl http://localhost:8080/proxy
 
 ### Service Flask
 - Port: 5000
+
+
+## Création et Configuration d'un Runner
+
+Création du dossier config :
+```bash
+# Le dossier doit être crée à la racine du projet.
+mkdir chemin_vers/gitlab-runner/config/ 
+```
+
+
+Installation du runner via Docker:
+```bash
+# Exécuter l'image Spring Boot
+docker run -d --name gitlab-runner --restart always \
+-v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner \
+-v /var/run/docker.sock:/var/run/docker.sock \
+gitlab/gitlab-runner:latest
+```
+
+
+Création d'un token pour le projet:
+
+    - Menu Settings > CI/CD du projet.
+    - Ouvrir la section Runners.
+    - Créer le runner via le bouton New project runner.
+    - Cocher la case Run untagged jobs
+    - Copier le runner authentication token et stocker le dans une endroit sur.
+
+
+Enregistrement du Runner dans Docker:
+
+```bash
+# Remplacer la variable par le token 
+docker run --rm -v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register \
+--non-interactive \
+--url "https://git.esi-bru.be" \
+--token "$RUNNER_TOKEN" \ 
+--executor "docker" \
+--docker-image alpine:latest \
+--description "docker-runner"
+```
+
+
+
+
+
+
+

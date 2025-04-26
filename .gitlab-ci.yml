@@ -2,15 +2,17 @@ stages:
   - service-java
   - service-python
 
+# Création des dossiers pour la mise en cache du runner
 cache:
   paths:
     - .m2/repository 
     - service-java/service-java-main/target/
     - venv/
 
+# Définition des variables Maven pour optimiser la mise en cache.
 variables:
-  MAVEN_XML_PATH: "service-java/service-java-main/pom.xml"
-  MAVEN_REPOSITORY: "-Dmaven.repo.local=.m2/repository"
+  MAVEN_XML_PATH: "service-java/service-java-main/pom.xml" # emplacement du pom.xml principal
+  MAVEN_REPOSITORY: "-Dmaven.repo.local=.m2/repository" # un répertoire local de dépendances
 
   
 
@@ -21,7 +23,7 @@ service-java:
 
   script:
     - echo "Compilation du projet..."
-    - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
+    - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY # récupère les dépendances dans le cache ou bien stockent les dépendances lors de la première execution
     - echo "Exécution des tests"
     - mvn test -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
 
@@ -37,7 +39,7 @@ service-python:
     - python -m venv venv
     - source venv/bin/activate
     - cd ./service-python/service-python-main
-    - pip install -r requirements.txt
+    - pip install -r requirements.txt 
     
   script:
     - echo "Exécution des tests"
