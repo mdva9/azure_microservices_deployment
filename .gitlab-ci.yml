@@ -14,8 +14,7 @@ cache:
 variables:
   MAVEN_XML_PATH: "service-java/service-java-main/pom.xml" # emplacement du pom.xml principal
   MAVEN_REPOSITORY: "-Dmaven.repo.local=.m2/repository" # un répertoire local de dépendances
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
+ 
 
 
   
@@ -53,9 +52,16 @@ service-python:
 build-and-deploy:
   stage: build-and-deploy
   image: docker:24.0.2
+
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+
   
   services:
     - docker:24.0.2-dind
+
+  
   
   dependencies:
     - service-java
