@@ -14,8 +14,8 @@ cache:
 variables:
   MAVEN_XML_PATH: "service-java/service-java-main/pom.xml" # emplacement du pom.xml principal
   MAVEN_REPOSITORY: "-Dmaven.repo.local=.m2/repository" # un répertoire local de dépendances
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
 
 
   
@@ -68,9 +68,7 @@ build-and-deploy:
 
   script:
 
-
     - echo "Déploiement de l'infra sur Azure"
-
 
 
     - echo "Build et push de l'image service-java"
