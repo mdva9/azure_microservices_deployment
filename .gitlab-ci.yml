@@ -62,7 +62,7 @@ build-and-deploy:
     - service-python
   
   before_script:
-     - echo $REG_PASSWORD | docker login $REGISTRY_URL -u $USERNAME --password-stdin
+     - echo $REGISTRY_PASSWORD | docker login $REGISTRY_URL -u $USERNAME --password-stdin
      - docker --version
  
 
