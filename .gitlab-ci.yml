@@ -14,8 +14,8 @@ cache:
 variables:
   MAVEN_XML_PATH: "service-java/service-java-main/pom.xml" # emplacement du pom.xml principal
   MAVEN_REPOSITORY: "-Dmaven.repo.local=.m2/repository" # un répertoire local de dépendances
-  DOCKER_HOST: "tcp://docker:2375"
-  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
 
 
   
@@ -37,10 +37,10 @@ service-java:
 service-python:
   
   stage: service-python
-  image: python:3.8-slim
+  image: python:3.8
 
   before_script:
-    - apt-get update && apt-get install -y build-essential python3-dev
+
     - python -m venv venv
     - source venv/bin/activate
     - cd ./service-python/service-python-main
@@ -57,38 +57,30 @@ build-and-deploy:
   services:
     - docker:24.0.2-dind
   
+  dependencies:
+    - service-java
+    - service-python
+  
   before_script:
-    - apk add --no-cache curl bash py3-pip
-    - pip install azure-cli
-    - curl -fsSL https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip -o terraform.zip
-    - unzip terraform.zip
-    - mv terraform /usr/local/bin/
-    - terraform --version
-
-    - az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-    - az account set --subscription "$ARM_SUBSCRIPTION_ID"
-    - az account show
-
-    - cd ./terraform
+     - echo $REG_PASSWORD | docker login $REGISTRY_URL -u $USERNAME --password-stdin
+     - docker --version
+ 
 
   script:
-    - echo "Création de l'infra"
-    - terraform init
-    - terraform validate
-    - terraform apply
+
 
     - echo "Déploiement de l'infra sur Azure"
 
-    - az acr login --name $ACR_LOGIN_SERVER
+
 
     - echo "Build et push de l'image service-java"
-    - docker build -t $ACR_LOGIN_SERVER/service-java:latest ./service-java/service-java-main
-    - docker push $ACR_LOGIN_SERVER/service-java:latest
+    - docker build -t $REGISTRY_URL/service-java:latest ./service-java/service-java-main
+    - docker push $REGISTRY_URL/service-java:latest
 
 
     - echo "Build et push de l'image service-python"
-    - docker build -t $ACR_LOGIN_SERVER/service-python:latest ./service-python/service-python-main
-    - docker push $ACR_LOGIN_SERVER/service-python:latest
+    - docker build -t $REGISTRY_URL/service-python:latest ./service-python/service-python-main
+    - docker push $REGISTRY_URL/service-python:latest
 
 
 
