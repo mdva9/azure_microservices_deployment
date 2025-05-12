@@ -148,9 +148,91 @@ docker run --rm -v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner gitlab/g
 --description "docker-runner"
 ```
 
+## Création d'une infrastructure Terraform sur Azure
+
+Connexion à Azure en local
+```bash
+az login
+```
+Une fois connecté récupérer le subscription_id et le tenant_id
 
 
+Création d'un Service principale :
 
+```bash
+az ad sp create-for-rbac --name <service_principal_name> --role Contributor --scopes /subscriptions/<subscription_id>
+```
+Une fois le service crée récupérer le app_id et le password
 
+Exportation des variables d'environnements :
 
+```bash
+# Permet la connexion à Microsoft Azure via un Service principal
+ARM_CLIENT_ID="app_id"
+ARM_CLIENT_SECRET="password"
+ARM_SUBSCRIPTION_ID="subscription_id"
+ARM_TENANT_ID="tenant_id"
+```
 
+Donner les permissions nécessaire pour la création des ressources :
+```bash
+az role assignment create --assignee ${ARM_CLIENT_ID} --role "Owner" --scope /subscriptions/${ARM_SUBSCRIPTION_ID}
+```
+
+Création de l'infrastructure Terraform :
+
+Ces commandes doivent être éxécuter uniquement lorsque l'ensemble des fichiers sont définis
+
+```bash
+# Initialise un répertoire Terraform.
+terraform init
+```
+
+```bash
+# Vérifie que la configuration est correcte syntaxiquement.
+terraform validate 
+```
+```bash
+# Affiche un aperçu des changements qui seront appliqués. (Dans le cas ou il y a des changements une fois le répertoire déjà initialisé)
+terraform plan  
+```
+
+```bash
+# Applique la configuration et crée/modifie l'infrastructure.
+terraform apply
+```
+
+Déploiement des images sur le registre de conteneurs :
+
+Création du registre :
+
+```bash
+az acr create --resource-group MyResourceGroup --name myacrregistry58493 --sku Basic --admin-enabled true
+```
+
+Connexion au registre :
+
+```bash
+az acr login myacrregistry58493
+```
+Déploiement des images :
+
+Service Spring Boot:
+```bash
+# Se placer dans le répertoire du service java
+cd service-java/service-java-main
+
+# Construire l'image Docker et Push de l'image 
+docker build -t myacrregistry58493.azurecr.io/service-java:latest .
+docker push myacrregistry1234.azurecr.io/service-java:latest
+```
+
+Service Flask :
+```bash
+# Se placer dans le répertoire du service java
+cd service-python/service-python-main
+
+# Construire l'image Docker et Push de l'image 
+docker build -t myacrregistry58493.azurecr.io/service-python:latest .
+docker push myacrregistry1234.azurecr.io/service-python:latest
+```
