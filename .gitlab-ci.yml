@@ -66,13 +66,14 @@ build-and-deploy:
     - service-python
   
   before_script:
+     - echo "Connexion au registry Docker"
      - echo $REGISTRY_PASSWORD | docker login $REGISTRY_URL -u $USERNAME --password-stdin
      - docker --version
  
 
   script:
 
-    - echo "Déploiement de l'infra sur Azure"
+    - echo "Déploiement des images sur le registre Azure"
 
 
     - echo "Build et push de l'image service-java"

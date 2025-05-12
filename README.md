@@ -229,10 +229,53 @@ docker push myacrregistry1234.azurecr.io/service-java:latest
 
 Service Flask :
 ```bash
-# Se placer dans le répertoire du service java
+# Se placer dans le répertoire du service python
 cd service-python/service-python-main
 
 # Construire l'image Docker et Push de l'image 
 docker build -t myacrregistry58493.azurecr.io/service-python:latest .
 docker push myacrregistry1234.azurecr.io/service-python:latest
+```
+
+# Configuration du Gitlab Runner pour l'utilisation de Docker-in-Docker
+
+Définir 3 Variables dans Gitlab:
+    
+    - REGISTRY_PASSWORD.
+    - USERNAME.
+    - REGISTRY_PASSWORD.
+
+
+Configuration du Gitlab Runner avec un nouveau volume :
+
+Retirer le GitLab Runner de la liste des runners du projet
+
+Arrêter le conteneur GitLab Runner avec la commande : docker stop gitlab-runner
+
+Créer un nouveau conteneur GitLab Runner :
+Supprimer le conteneur GitLab Runner avec : docker rm gitlab-runner
+
+Commandes bash :
+
+```bash
+# Création du Runner
+docker run -d ^
+  --name gitlab-runner ^
+  --restart always ^
+  -v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner ^
+  -v /var/run/docker.sock:/var/run/docker.sock ^
+  gitlab/gitlab-runner:latest
+
+
+# Enregistrement
+docker run --rm ^
+  -v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner ^
+  gitlab/gitlab-runner register ^
+    --non-interactive ^
+    --url "https://git.esi-bru.be" ^
+    --token "$RUNNER_TOKEN" 
+    --executor "docker" ^
+    --docker-image alpine:latest ^
+    --description "docker-runner"
+    --docker-volumes /var/run/docker.sock:/var/run/docker.sock
 ```
