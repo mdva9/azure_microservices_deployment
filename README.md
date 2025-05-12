@@ -19,7 +19,16 @@ Ce README détaille les commandes utilisées pour le déploiement des microservi
 │       ├── requirements.txt
 │       ├── test_app.py
 │       └── ...
+├── terraform/
+│   ├── main.tf
+│   ├── provider.tf
+│   ├── outputs.tf
+│   ├── variables.tf
+│   └── .terraform.lock.hcl
+├── .gitignore
+├── .gitlab-ci.yml
 └── docker-compose.yml
+
 ```
 
 ## Commandes pour les Images Docker
