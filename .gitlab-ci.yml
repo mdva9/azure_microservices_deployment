@@ -69,7 +69,7 @@ sonarqube-python:
   image: sonarsource/sonar-scanner-cli:latest
   script:
     - cd service-python/service-python-main
-    - sonar-scanner -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=$SONAR_TOKEN
+    - sonar-scanner -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN
 
 
 build-and-deploy:
