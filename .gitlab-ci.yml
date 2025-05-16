@@ -2,13 +2,14 @@ stages:
   - service-java
   - service-python
   - build-and-deploy
-
 # Création des dossiers pour la mise en cache du runner
 cache:
   paths:
     - .m2/repository 
     - service-java/service-java-main/target/
+    - service-python/service-python-main/coverage.xml
     - venv/
+    - service-java/service-java-main/target/site/jacoco/
 
 # Définition des variables Maven pour optimiser la mise en cache.
 variables:
@@ -20,7 +21,7 @@ variables:
   
 
 service-java:
-  
+
   stage: service-java
   image: maven:3.9.9-eclipse-temurin-23-alpine
 
@@ -29,8 +30,18 @@ service-java:
     - mvn compile -f $MAVEN_XML_PATH $MAVEN_REPOSITORY # récupère les dépendances dans le cache ou bien stockent les dépendances lors de la première execution
     - echo "Exécution des tests"
     - mvn test -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
+    - mvn test jacoco:report -f $MAVEN_XML_PATH $MAVEN_REPOSITORY
 
-   
+sonarqube-java:
+  stage: service-java
+  image: sonarsource/sonar-scanner-cli:latest
+  script:
+    - cd service-java/service-java-main
+    - sonar-scanner -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=$SONAR_TOKEN
+
+
+
+  
     
 
 service-python:
@@ -44,10 +55,22 @@ service-python:
     - source venv/bin/activate
     - cd ./service-python/service-python-main
     - pip install -r requirements.txt 
+    - pip install coverage
+    - coverage run test_app.py
+    - coverage xml -o coverage.xml
     
   script:
     - echo "Exécution des tests"
-    - python test_app.py
+    - coverage run test_app.py
+    - coverage xml -o coverage.xml
+  
+  sonarqube-python:
+  stage: service-python
+  image: sonarsource/sonar-scanner-cli:latest
+  script:
+    - cd service-python/service-python-main
+    - sonar-scanner -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=$SONAR_TOKEN
+
 
 build-and-deploy:
   stage: build-and-deploy
