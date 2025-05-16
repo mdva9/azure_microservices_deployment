@@ -64,7 +64,7 @@ service-python:
     - coverage run test_app.py
     - coverage xml -o coverage.xml
   
-  sonarqube-python:
+sonarqube-python:
   stage: service-python
   image: sonarsource/sonar-scanner-cli:latest
   script:
