@@ -37,7 +37,7 @@ sonarqube-java:
   image: sonarsource/sonar-scanner-cli:latest
   script:
     - cd service-java/service-java-main
-    - sonar-scanner -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=$SONAR_TOKEN
+    - sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
 
 
 
