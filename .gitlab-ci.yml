@@ -34,7 +34,8 @@ service-java:
 
 sonarqube-java:
   stage: service-java
-  image: sonarsource/sonar-scanner-cli:latest
+  image: 
+   name: sonarsource/sonar-scanner-cli:latest
   script:
     - cd service-java/service-java-main
     - sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
@@ -66,7 +67,8 @@ service-python:
   
 sonarqube-python:
   stage: service-python
-  image: sonarsource/sonar-scanner-cli:latest
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
   script:
     - cd service-python/service-python-main
     - sonar-scanner -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN
