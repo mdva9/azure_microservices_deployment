@@ -1,11 +1,14 @@
-# README - Commandes pour le déploiement d'une application à microservices sur Microsoft Azure.
+# Microservices Deployment on Microsoft Azure
 
-Ce README détaille les commandes utilisées pour le déploiement des microservices Spring Boot et Flask sur Azure.
+This project demonstrates how to deploy two microservices (Spring Boot & Flask) on Microsoft Azure using **Docker**, **Terraform**, and **GitLab CI/CD**.
 
-## Arborescence du Projet
+---
+
+## Project Structure
+
 
 ```
-58493/
+azure_microservices_deployment/
 ├── service-java/
 │   └── service-java-main/
 │       ├── Dockerfile
@@ -31,105 +34,102 @@ Ce README détaille les commandes utilisées pour le déploiement des microservi
 
 ```
 
-## Commandes pour les Images Docker
+## Docker Image Commands
 
-### Service Spring Boot
-
+### Spring Boot Service
 ```bash
-# Se placer dans le répertoire du service java
 cd service-java/service-java-main
-
-# Construire l'image Docker
 docker build -t service-java .
 ```
 
-### Service Flask
+### Flask Service
 
 ```bash
-# Se placer dans le répertoire du service python
+# Navigate to the Python service directory
 cd service-python/service-python-main
 
-# Construire l'image Docker
+# Build the Docker image
 docker build -t service-python .
 ```
 
-## Commandes pour l'Exécution des Conteneurs
+## Running the Containers
 
-### Exécution Individuelle des images
+### Individually
 
 
-Service Spring Boot:
+Spring Boot Service:
+
 ```bash
-# Exécuter l'image Spring Boot
+# Run Spring Boot image 
 docker run -p 8080:8080 service-java
 ```
 
-Service Flask:
+Flask Service :
 ```bash
-# Exécuter l'image Flask
+# Run Flask image
 docker run -p 5000:5000 service-python
 ```
 
-
-
-### Exécution avec Docker Compose
+### With Docker Compose
 
 ```bash
-# Se placer à la racine du projet (où se trouve le docker-compose.yml)
+# Navigate to the project root (where the docker-compose.yml is located)
 cd 58493
 
-# Démarrer les services définis dans le fichier docker-compose.yml
+# Start the services defined in docker-compose.yml
 docker-compose up -d
 
-# Lister les conteneurs en cours d'exécution
+# List running containers
 docker-compose ps
 
-# Démarrer un service spécifique
+# Start a specific service
 docker-compose start "name-service"
 
-# Arrêter un service spécifique
+# Stop a specific service
 docker-compose stop "name-service"
 
-# Arrêter et supprimer tous les services
+# Stop and remove all services
 docker-compose down
+
 ```
 
-## Vérification du Fonctionnement
+## Verifying Functionality
 
-Pour tester que les services fonctionnent correctement:
+To test that the services are working correctly:
 
 ```bash
-# Test du service Flask
+# Test Flask service
 curl http://localhost:5000/api/message
 
-# Test du service Spring Boot (proxy vers Flask)
+# Spring Boot proxy (calling Flask)
 curl http://localhost:8080/proxy
+
 ```
 
-## Rappel des Spécifications Techniques
+## Technical Specifications
 
-### Service Spring Boot
+### Spring Boot Service
 - Port: 8080
-- Variable d'environnement: FLASK_URL
+- Env variable: FLASK_URL
 
 ### Service Flask
 - Port: 5000
 
 
-## Création et Configuration d'un Runner
+## GitLab Runner Setup
 
-Création du dossier config :
+Create config folder :
 ```bash
-# Le dossier doit être crée à la racine du projet.
-mkdir chemin_vers/gitlab-runner/config/ 
+# The folder must be created at the root of the project.
+mkdir path_to/gitlab-runner/config/ 
 ```
 
 
-Installation du runner via Docker:
+Install runner with Docker:
 ```bash
-# Exécuter l'image Spring Boot
+# Run the Spring Boot image
 docker run -d --name gitlab-runner --restart always \
--v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner \
+-v /path_to/gitlab-runner/config:/etc/gitlab-runner \
 -v /var/run/docker.sock:/var/run/docker.sock \
 gitlab/gitlab-runner:latest
 ```
@@ -137,148 +137,150 @@ gitlab/gitlab-runner:latest
 
 Création d'un token pour le projet:
 
-    - Menu Settings > CI/CD du projet.
-    - Ouvrir la section Runners.
-    - Créer le runner via le bouton New project runner.
-    - Cocher la case Run untagged jobs
-    - Copier le runner authentication token et stocker le dans une endroit sur.
+    - Go to Settings > CI/CD.
+    - Open Runners section.
+    - Click New project runner.
+    - Enable Run untagged jobs.
+    - Copy the authentication token.
 
 
-Enregistrement du Runner dans Docker:
+Register runner:
 
 ```bash
-# Remplacer la variable par le token 
-docker run --rm -v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register \
+# Replace the variable with the token 
+docker run --rm -v /path_to/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register \
 --non-interactive \
 --url "https://git.esi-bru.be" \
---token "$RUNNER_TOKEN" \ 
+--token "$RUNNER_TOKEN" \
 --executor "docker" \
 --docker-image alpine:latest \
 --description "docker-runner"
+
 ```
 
-## Création d'une infrastructure Terraform sur Azure
+## Provisioning Azure Infrastructure with Terraform
 
-Connexion à Azure en local
+Login to Azure
 ```bash
 az login
 ```
-Une fois connecté récupérer le subscription_id et le tenant_id
+Retrieve subscription_id and tenant_id
 
 
-Création d'un Service principale :
+Create service principal:
 
 ```bash
 az ad sp create-for-rbac --name <service_principal_name> --role Contributor --scopes /subscriptions/<subscription_id>
 ```
-Une fois le service crée récupérer le app_id et le password
+Once the service has been created, retrieve the app_id and password.
 
-Exportation des variables d'environnements :
+Export credentials :
 
 ```bash
-# Permet la connexion à Microsoft Azure via un Service principal
+# Enables connection to Microsoft Azure via a Core Service
 ARM_CLIENT_ID="app_id"
 ARM_CLIENT_SECRET="password"
 ARM_SUBSCRIPTION_ID="subscription_id"
 ARM_TENANT_ID="tenant_id"
 ```
 
-Donner les permissions nécessaire pour la création des ressources :
+Assign role:
 ```bash
 az role assignment create --assignee ${ARM_CLIENT_ID} --role "Owner" --scope /subscriptions/${ARM_SUBSCRIPTION_ID}
 ```
 
-Création de l'infrastructure Terraform :
+Terraform commands :
 
-Ces commandes doivent être éxécuter uniquement lorsque l'ensemble des fichiers sont définis
+These commands should only be executed when all files are defined.
 
 ```bash
-# Initialise un répertoire Terraform.
+# Initialize a Terraform working directory
 terraform init
 ```
 
 ```bash
-# Vérifie que la configuration est correcte syntaxiquement.
+# Validate that the configuration is syntactically correct
 terraform validate 
 ```
 ```bash
-# Affiche un aperçu des changements qui seront appliqués. (Dans le cas ou il y a des changements une fois le répertoire déjà initialisé)
-terraform plan  
+# Preview the changes that will be applied 
+# (useful if the directory was already initialized and you want to see differences)
+terraform plan
 ```
 
 ```bash
-# Applique la configuration et crée/modifie l'infrastructure.
+# Apply the configuration and create/modify the infrastructure
 terraform apply
 ```
 
-Déploiement des images sur le registre de conteneurs :
+Deploying Images to Azure Container Registry (ACR) :
 
-Création du registre :
+Create registry:
 
 ```bash
 az acr create --resource-group MyResourceGroup --name myacrregistry58493 --sku Basic --admin-enabled true
 ```
 
-Connexion au registre :
+Login:
 
 ```bash
-az acr login myacrregistry58493
+az acr login myacrregistry
 ```
-Déploiement des images :
+Build and push :
 
-Service Spring Boot:
+Spring Boot Service:
 ```bash
-# Se placer dans le répertoire du service java
-cd service-java/service-java-main
+# Go to the java service directory
+cd java-service/java-service-main
 
-# Construire l'image Docker et Push de l'image 
-docker build -t myacrregistry58493.azurecr.io/service-java:latest .
-docker push myacrregistry1234.azurecr.io/service-java:latest
+# Build the Docker image and push the image
+docker build -t myacrregistry.azurecr.io/java-service:latest .
+docker push myacrregistry.azurecr.io/java-service:latest
 ```
 
-Service Flask :
+Flask Service :
 ```bash
-# Se placer dans le répertoire du service python
+# Go to the python service directory
 cd service-python/service-python-main
 
-# Construire l'image Docker et Push de l'image 
-docker build -t myacrregistry58493.azurecr.io/service-python:latest .
-docker push myacrregistry1234.azurecr.io/service-python:latest
+# Build the Docker image and push the image 
+docker build -t myacrregistry.azurecr.io/service-python:latest .
+docker push myacrregistry.azurecr.io/service-python:latest
 ```
 
-# Configuration du Gitlab Runner pour l'utilisation de Docker-in-Docker
+# GitLab Runner with Docker-in-Docker
 
-Définir 3 Variables dans Gitlab:
-    
+Define variables in GitLab:
+
     - REGISTRY_PASSWORD.
     - USERNAME.
     - REGISTRY_PASSWORD.
 
 
-Configuration du Gitlab Runner avec un nouveau volume :
+Configuring GitLab Runner with a new volume:
 
-Retirer le GitLab Runner de la liste des runners du projet
+Remove GitLab Runner from the project's list of runners.
 
-Arrêter le conteneur GitLab Runner avec la commande : docker stop gitlab-runner
+Stop the GitLab Runner container with the command: docker stop gitlab-runner.
 
-Créer un nouveau conteneur GitLab Runner :
-Supprimer le conteneur GitLab Runner avec : docker rm gitlab-runner
+Create a new GitLab Runner container:
+Delete the GitLab Runner container with: docker rm gitlab-runner.
 
 Commandes bash :
 
 ```bash
-# Création du Runner
+# Recreate runner:
 docker run -d ^
   --name gitlab-runner ^
   --restart always ^
-  -v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner ^
+  -v /path_to/gitlab-runner/config:/etc/gitlab-runner ^
   -v /var/run/docker.sock:/var/run/docker.sock ^
   gitlab/gitlab-runner:latest
 
 
-# Enregistrement
+# Register runner with volumes:
 docker run --rm ^
-  -v /chemin_vers/gitlab-runner/config:/etc/gitlab-runner ^
+  -v /path_to/gitlab-runner/config:/etc/gitlab-runner ^
   gitlab/gitlab-runner register ^
     --non-interactive ^
     --url "https://git.esi-bru.be" ^
